@@ -73,7 +73,13 @@ public class IyzicoPaymentStrategy implements PaymentStrategy {
     private PaymentCard buildCard(PaymentRequest.Card card) {
         PaymentCard pc = new PaymentCard();
         pc.setCardHolderName(card.getCardHolderName());
-        pc.setCardNumber(card.getCardNumber());
+        
+        // Remove spaces from card number to prevent Iyzico test card validation errors
+        String cleanCardNumber = card.getCardNumber() != null ? card.getCardNumber().replaceAll("\\s+", "") : null;
+        log.info("[Iyzico] Kart bilgisi -> cardNumber='{}', expireMonth='{}', expireYear='{}'",
+                cleanCardNumber, card.getExpireMonth(), card.getExpireYear());
+        pc.setCardNumber(cleanCardNumber);
+        
         pc.setExpireMonth(card.getExpireMonth());
         pc.setExpireYear(card.getExpireYear());
         pc.setCvc(card.getCvc());
