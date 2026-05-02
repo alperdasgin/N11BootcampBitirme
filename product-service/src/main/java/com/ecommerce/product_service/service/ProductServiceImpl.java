@@ -21,6 +21,7 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final com.ecommerce.product_service.client.OrderClient orderClient;
 
     @Override
     public ProductResponse createProduct(ProductRequest request) {
@@ -31,9 +32,18 @@ public class ProductServiceImpl implements ProductService {
                 .price(request.getPrice())
                 .stock(request.getStock())
                 .category(request.getCategory())
-                .imageUrl(request.getImageUrl())
                 .active(true)
+                .viewCount(0)
                 .build();
+                
+        if (request.getImages() != null) {
+            request.getImages().forEach(url -> {
+                com.ecommerce.product_service.entity.ProductImage img = new com.ecommerce.product_service.entity.ProductImage();
+                img.setUrl(url);
+                img.setProduct(product);
+                product.getImages().add(img);
+            });
+        }
         Product saved = productRepository.save(product);
         log.info("Ürün oluşturuldu. id={}", saved.getId());
         return toResponse(saved);
@@ -64,6 +74,14 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ürün bulunamadı: " + id));
+        
+        // Ürün görüntülendiğinde sayacı 1 artır
+        if (product.getViewCount() == null) {
+            product.setViewCount(0);
+        }
+        product.setViewCount(product.getViewCount() + 1);
+        productRepository.save(product);
+
         return toResponse(product);
     }
 
@@ -76,7 +94,17 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setCategory(request.getCategory());
-        product.setImageUrl(request.getImageUrl());
+        
+        product.getImages().clear();
+        if (request.getImages() != null) {
+            request.getImages().forEach(url -> {
+                com.ecommerce.product_service.entity.ProductImage img = new com.ecommerce.product_service.entity.ProductImage();
+                img.setUrl(url);
+                img.setProduct(product);
+                product.getImages().add(img);
+            });
+        }
+        
         Product updated = productRepository.save(product);
         log.info("Ürün güncellendi. id={}", id);
         return toResponse(updated);
@@ -107,7 +135,46 @@ public class ProductServiceImpl implements ProductService {
         return toResponse(productRepository.save(product));
     }
 
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public com.ecommerce.product_service.dto.ReviewResponse addReview(Long productId, com.ecommerce.product_service.dto.ReviewRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Ürün bulunamadı"));
+
+        Boolean hasPurchased = false;
+        try {
+            hasPurchased = orderClient.checkPurchase(request.getUsername(), productId);
+        } catch (Exception e) {
+            log.error("Satın alma durumu kontrol edilemedi: {}", e.getMessage());
+        }
+
+        if (Boolean.FALSE.equals(hasPurchased)) {
+            throw new RuntimeException("Bu ürüne yorum yapabilmek için önce satın almış olmanız gerekmektedir.");
+        }
+
+        com.ecommerce.product_service.entity.Review review = com.ecommerce.product_service.entity.Review.builder()
+                .product(product)
+                .username(request.getUsername())
+                .rating(request.getRating())
+                .comment(request.getComment())
+                .build();
+
+        product.getReviews().add(review);
+        productRepository.save(product);
+
+        return com.ecommerce.product_service.dto.ReviewResponse.builder()
+                .id(review.getId())
+                .username(review.getUsername())
+                .rating(review.getRating())
+                .comment(review.getComment())
+                .createdAt(review.getCreatedAt())
+                .build();
+    }
+
     private ProductResponse toResponse(Product p) {
+        Double avgRating = p.getReviews() == null || p.getReviews().isEmpty() ? 0.0 :
+                p.getReviews().stream().mapToInt(com.ecommerce.product_service.entity.Review::getRating).average().orElse(0.0);
+
         return ProductResponse.builder()
                 .id(p.getId())
                 .name(p.getName())
@@ -115,9 +182,19 @@ public class ProductServiceImpl implements ProductService {
                 .price(p.getPrice())
                 .stock(p.getStock())
                 .category(p.getCategory())
-                .imageUrl(p.getImageUrl())
+                .images(p.getImages() != null ? p.getImages().stream().map(img -> img.getUrl()).toList() : java.util.Collections.emptyList())
                 .active(p.getActive())
+                .viewCount(p.getViewCount() != null ? p.getViewCount() : 0)
                 .createdAt(p.getCreatedAt())
+                .averageRating(Math.round(avgRating * 10.0) / 10.0)
+                .reviewCount(p.getReviews() != null ? p.getReviews().size() : 0)
+                .reviews(p.getReviews() != null ? p.getReviews().stream().map(r -> com.ecommerce.product_service.dto.ReviewResponse.builder()
+                        .id(r.getId())
+                        .username(r.getUsername())
+                        .rating(r.getRating())
+                        .comment(r.getComment())
+                        .createdAt(r.getCreatedAt())
+                        .build()).toList() : java.util.Collections.emptyList())
                 .build();
     }
 

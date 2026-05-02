@@ -95,4 +95,12 @@ public class ProductController {
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Product Service çalışıyor");
     }
+
+    @PostMapping("/{id}/reviews")
+    @Operation(summary = "Ürüne yorum yap (Sadece satın alanlar)")
+    public ResponseEntity<com.ecommerce.product_service.dto.ReviewResponse> addReview(
+            @PathVariable Long id,
+            @Valid @RequestBody com.ecommerce.product_service.dto.ReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.addReview(id, request));
+    }
 }

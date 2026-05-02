@@ -44,6 +44,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Builder.Default
+    @Column(name = "is_verified", nullable = false)
+    private Boolean isVerified = false;
+
     public enum Role {
         CUSTOMER, ADMIN
     }

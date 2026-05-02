@@ -82,6 +82,20 @@ public class OrderSagaListener {
             orderRepository.save(order);
             log.info("[SAGA] Ödeme başarılı, sipariş COMPLETED. orderId={}, transactionId={}",
                     order.getId(), paymentResponse.getTransactionId());
+                    
+            // E-Posta atılması için Notification Service'e mesaj gönder
+            try {
+                java.util.Map<String, Object> eventData = new java.util.HashMap<>();
+                eventData.put("orderId", order.getId());
+                eventData.put("email", order.getOrderDetails() != null ? order.getOrderDetails().getEmail() : "");
+                eventData.put("firstName", order.getOrderDetails() != null ? order.getOrderDetails().getFirstName() : order.getUsername());
+                eventData.put("totalPrice", order.getTotalPrice());
+                rabbitTemplate.convertAndSend("order.exchange", "order.completed", eventData);
+                log.info("[SAGA] OrderCompletedEvent yayınlandı. orderId={}", order.getId());
+            } catch (Exception e) {
+                log.error("Bildirim servisine mesaj gönderilirken hata oluştu: {}", e.getMessage());
+            }
+            
         } else {
             // Ödeme başarısız → stok geri bırak + iptal
             log.warn("[SAGA] Ödeme başarısız. orderId={}, reason={}", order.getId(), paymentResponse.getMessage());

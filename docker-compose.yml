@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
 
@@ -34,9 +33,22 @@ services:
     networks:
       - ecommerce-network
 
+  # ─── Redis ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ecommerce-network
+
 volumes:
   postgres_data:
   rabbitmq_data:
+  redis_data:
 
 networks:
   ecommerce-network:

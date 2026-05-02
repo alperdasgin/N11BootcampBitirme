@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react'
-import { login as loginApi, register as registerApi } from '../api/authApi'
+import { login as loginApi, register as registerApi, verifyOtp as verifyOtpApi } from '../api/authApi'
 
 const AuthContext = createContext(null)
 
@@ -24,7 +24,19 @@ export function AuthProvider({ children }) {
   }, [])
 
   const register = useCallback(async (name, username, email, password) => {
-    await registerApi({ name, username, email, password })
+    const res = await registerApi({ name, username, email, password })
+    // requiresVerification: true ise OTP ekranına gideceğiz
+    return res.data
+  }, [])
+
+  const verifyOtp = useCallback(async (email, code) => {
+    const res = await verifyOtpApi({ email, code })
+    const { token, userId, name, username, role } = res.data
+    const userData = { userId, name, username, email, role }
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
+    return userData
   }, [])
 
   const logout = useCallback(() => {
@@ -34,7 +46,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, verifyOtp, logout }}>
       {children}
     </AuthContext.Provider>
   )

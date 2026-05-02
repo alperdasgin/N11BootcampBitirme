@@ -25,6 +25,12 @@ public class UserController {
         return ResponseEntity.ok(userService.register(request));
     }
 
+    @PostMapping("/verify")
+    @Operation(summary = "E-Posta OTP doğrulama")
+    public ResponseEntity<AuthResponse> verify(@Valid @RequestBody com.ecommerce.user_service.dto.VerifyRequest request) {
+        return ResponseEntity.ok(userService.verifyOtp(request));
+    }
+
     @PostMapping("/signin")
     @Operation(summary = "Kullanıcı girişi")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {

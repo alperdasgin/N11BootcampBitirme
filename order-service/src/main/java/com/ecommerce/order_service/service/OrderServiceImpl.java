@@ -109,6 +109,11 @@ public class OrderServiceImpl implements OrderService {
         log.info("Sipariş durumu güncellendi. orderId={}, status={}", orderId, status);
     }
 
+    @Override
+    public boolean hasUserPurchasedProduct(String username, Long productId) {
+        return orderRepository.hasUserPurchasedProduct(username, productId);
+    }
+
     private OrderResponse toResponse(Order order) {
         return OrderResponse.builder()
                 .orderId(order.getId())

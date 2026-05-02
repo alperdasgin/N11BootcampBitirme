@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getProducts, getProductsByCategory, getCategories } from '../api/productApi'
+import { getProducts, getProductsByCategory, getCategories, searchProducts } from '../api/productApi'
+import { useSearchParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import Pagination from '../components/Pagination'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -13,14 +14,21 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchParams] = useSearchParams()
+  const searchQuery = searchParams.get('search')
 
   const fetchProducts = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const res = selectedCategory
-        ? await getProductsByCategory(selectedCategory, page, 12)
-        : await getProducts(page, 12)
+      let res;
+      if (searchQuery) {
+        res = await searchProducts(searchQuery, page, 12)
+      } else if (selectedCategory) {
+        res = await getProductsByCategory(selectedCategory, page, 12)
+      } else {
+        res = await getProducts(page, 12)
+      }
       // Response: PageResponse { content, totalPages, ... }
       const data = res.data
       if (Array.isArray(data)) {
@@ -35,7 +43,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, selectedCategory])
+  }, [page, selectedCategory, searchQuery])
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
@@ -54,7 +62,11 @@ export default function ProductsPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
-        <p className="text-gray-500">Discover our full collection</p>
+        {searchQuery ? (
+          <p className="text-gray-500">Search results for "{searchQuery}"</p>
+        ) : (
+          <p className="text-gray-500">Discover our full collection</p>
+        )}
       </div>
 
       {/* Category filters */}

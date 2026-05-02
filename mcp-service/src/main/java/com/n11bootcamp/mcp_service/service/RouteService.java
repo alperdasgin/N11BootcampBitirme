@@ -23,7 +23,7 @@ import java.util.Map;
 public class RouteService {
 
     private static final Logger log = LoggerFactory.getLogger(RouteService.class);
-    private static final String PRODUCT_CHAT_AI_PATH = "/api/product/chat-ai";
+    private static final String PRODUCT_CHAT_AI_PATH = "/api/products/search";
 
     private final RestTemplate restTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -67,11 +67,14 @@ public class RouteService {
             safePayload.putIfAbsent("lang", normalizedLang);
         }
 
+        String queryParam = safePayload.containsKey("query") ? "?keyword=" + safePayload.get("query") : "?keyword=";
+        final String finalTargetUrl = targetUrl + queryParam;
+
         HttpEntity<Map<String, Object>> req = new HttpEntity<>(safePayload, headers);
 
         try {
             ResponseEntity<Object> upstream = restTemplate.exchange(
-                    targetUrl, HttpMethod.POST, req, Object.class
+                    finalTargetUrl, HttpMethod.GET, new HttpEntity<>(headers), Object.class
             );
 
             if (upstream.getStatusCode().value() == 204 || upstream.getBody() == null) {

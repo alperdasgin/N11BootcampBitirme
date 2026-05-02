@@ -16,4 +16,6 @@ public interface OrderService {
     List<OrderResponse> findOrdersByUsername(String username);
 
     void updateOrderStatus(Long orderId, String status);
+
+    boolean hasUserPurchasedProduct(String username, Long productId);
 }

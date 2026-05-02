@@ -17,4 +17,5 @@ public class AuthResponse {
     private String username;    // Login id
     private String email;
     private String role;
+    private Boolean requiresVerification;
 }

@@ -14,7 +14,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     // JWT doğrulaması gerektirmeyen endpointler
     private static final java.util.List<String> OPEN_ENDPOINTS = java.util.List.of(
             "/api/user/signin",
-            "/api/user/signup"
+            "/api/user/signup",
+            "/api/user/verify"
     );
 
     public AuthenticationFilter(JwtUtil jwtUtil) {

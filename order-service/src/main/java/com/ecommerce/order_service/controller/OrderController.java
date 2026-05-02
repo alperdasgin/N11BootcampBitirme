@@ -47,4 +47,11 @@ public class OrderController {
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Order Service çalışıyor");
     }
+
+    @GetMapping("/check-purchase")
+    @Operation(summary = "Kullanıcı bu ürünü satın aldı mı?")
+    public ResponseEntity<Boolean> checkPurchase(@RequestParam String username, @RequestParam Long productId) {
+        boolean purchased = orderService.hasUserPurchasedProduct(username, productId);
+        return ResponseEntity.ok(purchased);
+    }
 }

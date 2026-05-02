@@ -68,11 +68,8 @@ public class McpController {
         return ResponseEntity.ok(Map.of("status", "ok", "component", "mcp-server"));
     }
 
-<<<<<<< HEAD
-=======
     // ✅ Passthrough: Accept-Language'ı upstream'e forward et
     // ✅ Redis cache header'larını da response'a forward et
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc
     @PostMapping(
             path = "/api/product/chat-ai",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -150,10 +147,7 @@ public class McpController {
                 .body(emitter);
     }
 
-<<<<<<< HEAD
-=======
     // ✅ JSON-RPC Entry: Accept-Language al
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc
     @PostMapping(path = "/message", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> mcpMessage(
             @RequestBody Map<String, Object> payload,
@@ -183,7 +177,6 @@ public class McpController {
             }
 
             if ("tools/list".equals(method)) {
-<<<<<<< HEAD
                 Map<String, Object> inputSchema = Map.of(
                         "type", "object",
                         "properties", Map.of(
@@ -209,12 +202,6 @@ public class McpController {
                 Map<String, Object> result = Map.of(
                         "tools", List.of(productSearchTool)
                 );
-
-=======
-                Map<String, Object> result = Map.of(
-                        "tools", new String[]{ "product.search" }
-                );
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc
                 return okJsonRpc(id, result);
             }
 
@@ -223,10 +210,7 @@ public class McpController {
                 String toolName = String.valueOf(params.get("name"));
                 Map<String, Object> arguments = getMap(params.get("arguments"));
 
-<<<<<<< HEAD
-=======
                 // ✅ opsiyonel: payload.lang'e de yaz (bazı upstream'ler body'den okuyabilir)
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc
                 if (lang != null && !lang.isBlank() && !arguments.containsKey("lang")) {
                     arguments.put("lang", lang);
                 }
@@ -258,10 +242,7 @@ public class McpController {
         }
     }
 
-<<<<<<< HEAD
-=======
     // ---------- Helpers ----------
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc
     private SseEmitter createSseEmitter() {
         final SseEmitter emitter = new SseEmitter(0L);
         emitter.onCompletion(() -> emitters.remove(emitter));
@@ -307,13 +288,8 @@ public class McpController {
         if (raw == null) return null;
         String s = raw.trim();
         if (s.isBlank()) return null;
-<<<<<<< HEAD
-        s = s.split(",")[0].trim();
-        if (s.length() >= 2) return s.substring(0, 2).toLowerCase(java.util.Locale.ROOT);
-=======
         s = s.split(",")[0].trim(); // "en-US,en;q=0.9" -> "en-US"
         if (s.length() >= 2) return s.substring(0, 2).toLowerCase(java.util.Locale.ROOT); // "en-US" -> "en"
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc
         return s.toLowerCase(java.util.Locale.ROOT);
     }
 
@@ -323,8 +299,4 @@ public class McpController {
             dst.put(key, vals);
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 7b92b2f346918f3f46fd4e6a4137e618eaaa6fcc

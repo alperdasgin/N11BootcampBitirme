@@ -3,6 +3,8 @@ package com.ecommerce.product_service.service;
 import com.ecommerce.product_service.dto.PageResponse;
 import com.ecommerce.product_service.dto.ProductRequest;
 import com.ecommerce.product_service.dto.ProductResponse;
+import com.ecommerce.product_service.dto.ReviewRequest;
+import com.ecommerce.product_service.dto.ReviewResponse;
 
 import java.util.List;
 
@@ -25,4 +27,6 @@ public interface ProductService {
     List<String> getAllCategories();
 
     ProductResponse updateStock(Long id, Integer quantity);
+
+    ReviewResponse addReview(Long productId, ReviewRequest request);
 }

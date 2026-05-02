@@ -17,9 +17,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Kategoriye göre filtrele
     Page<Product> findByCategoryAndActiveTrue(String category, Pageable pageable);
 
-    // İsme göre arama (pagination ile)
-    @Query("SELECT p FROM Product p WHERE p.active = true AND " +
-            "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    // İsme, açıklamaya ve kategoriye göre arama (pagination ile)
+    @Query("SELECT p FROM Product p WHERE p.active = true AND (" +
+            "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.category) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Product> searchByName(@Param("keyword") String keyword, Pageable pageable);
 
     // Kategorileri listele

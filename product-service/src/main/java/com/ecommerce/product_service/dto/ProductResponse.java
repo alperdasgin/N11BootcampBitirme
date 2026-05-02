@@ -19,7 +19,11 @@ public class ProductResponse {
     private BigDecimal price;
     private Integer stock;
     private String category;
-    private String imageUrl;
+    private java.util.List<String> images;
     private Boolean active;
+    private Integer viewCount;
     private LocalDateTime createdAt;
+    private Double averageRating;
+    private Integer reviewCount;
+    private java.util.List<ReviewResponse> reviews;
 }

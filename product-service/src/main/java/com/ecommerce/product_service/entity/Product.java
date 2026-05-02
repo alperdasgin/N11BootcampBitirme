@@ -41,10 +41,20 @@ public class Product {
 
     private String category;
 
-    private String imageUrl;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private java.util.List<ProductImage> images = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private java.util.List<Review> reviews = new java.util.ArrayList<>();
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer viewCount = 0;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

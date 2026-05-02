@@ -14,4 +14,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items LEFT JOIN FETCH o.orderDetails WHERE o.id = :id")
     Optional<Order> findWithItemsAndDetails(@Param("id") Long id);
+
+    @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END " +
+           "FROM Order o JOIN o.items i " +
+           "WHERE o.username = :username AND i.productId = :productId AND o.status = 'COMPLETED'")
+    boolean hasUserPurchasedProduct(@Param("username") String username, @Param("productId") Long productId);
 }
