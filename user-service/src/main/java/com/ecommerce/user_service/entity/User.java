@@ -25,6 +25,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Size(max = 100)
+    private String name;   // Görünen ad (ör: "Alper Daşgın")
+
     @NotBlank
     @Size(max = 50)
     private String username;

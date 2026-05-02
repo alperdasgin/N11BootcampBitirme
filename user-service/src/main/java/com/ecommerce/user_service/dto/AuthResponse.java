@@ -13,7 +13,8 @@ public class AuthResponse {
     private String token;
     private String tokenType = "Bearer";
     private Long userId;
-    private String username;
+    private String name;        // Görünen ad: "Alper Daşgın"
+    private String username;    // Login id
     private String email;
     private String role;
 }

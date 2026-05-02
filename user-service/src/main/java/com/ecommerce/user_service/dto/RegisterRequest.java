@@ -8,9 +8,13 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
 
+    @NotBlank(message = "Ad Soyad boş olamaz")
+    @Size(min = 2, max = 100, message = "Ad Soyad en az 2 karakter olmalı")
+    private String name;        // "Alper Daşgın" gibi tam ad
+
     @NotBlank(message = "Kullanıcı adı boş olamaz")
     @Size(min = 3, max = 50, message = "Kullanıcı adı 3-50 karakter olmalı")
-    private String username;
+    private String username;    // Login için kullanılır (URL-safe tutulmalı)
 
     @NotBlank(message = "Email boş olamaz")
     @Email(message = "Geçerli bir email girin")
