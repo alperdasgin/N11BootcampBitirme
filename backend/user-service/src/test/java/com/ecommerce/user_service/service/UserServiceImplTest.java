@@ -71,7 +71,7 @@ class UserServiceImplTest {
 
         // ASSERT
         assertThat(response.getUsername()).isEqualTo("alper");
-        assertThat(response.isRequiresVerification()).isTrue();
+        assertThat(response.getRequiresVerification()).isTrue();
         assertThat(response.getToken()).isNull(); // OTP doğrulanmadan token verilmez
         verify(userRepository, times(1)).save(any(User.class));
         verify(verificationTokenRepository, times(1)).save(any(VerificationToken.class));

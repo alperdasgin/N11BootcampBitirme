@@ -79,8 +79,12 @@ class OrderSagaListenerTest {
         verify(orderRepository, atLeastOnce()).save(argThat(o ->
                 o.getStatus() == OrderStatus.COMPLETED
         ));
-        // Stok serbest bırakma mesajı GÖNDERILMEMELI
-        verify(rabbitTemplate, never()).convertAndSend(anyString(), anyString(), any(Object.class));
+        // Stok serbest bırakma mesajı gönderilmemeli, sadece bildirim mesajı gönderilmeli
+        verify(rabbitTemplate, never()).convertAndSend(
+                eq("stock.events.exchange"), anyString(), any(Object.class));
+        // Notification servisine tamamlandı mesajı gönderilmeli
+        verify(rabbitTemplate, times(1)).convertAndSend(
+                eq("order.exchange"), eq("order.completed"), any(Object.class));
     }
 
     @Test
