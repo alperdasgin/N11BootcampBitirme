@@ -54,17 +54,14 @@ export default function ProductDetailPage() {
     setReviewError('')
     setSubmittingReview(true)
     try {
-      const res = await addReview(product.id, {
+      await addReview(product.id, {
         username: user.username,
         rating: reviewRating,
         comment: reviewComment
       })
-      // append new review
-      setProduct(prev => ({
-        ...prev,
-        reviews: [...(prev.reviews || []), res],
-        reviewCount: (prev.reviewCount || 0) + 1
-      }))
+      // Yorum eklendi: ürünü tekrar çek ki reviews + averageRating güncel olsun
+      const fresh = await getProduct(product.id)
+      setProduct(fresh.data)
       setReviewComment('')
     } catch (err) {
       const backendMsg = err.response?.data?.error || err.response?.data?.message
@@ -248,27 +245,32 @@ export default function ProductDetailPage() {
         {/* Reviews List */}
         <div className="space-y-6">
           {product.reviews && product.reviews.length > 0 ? (
-            product.reviews.map(review => (
-              <div key={review.id} className="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-indigo-100 text-indigo-700 font-bold rounded-full flex items-center justify-center uppercase">
-                    {review.username.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 text-sm">{review.username}</div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-yellow-400 text-xs">
-                        {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+            product.reviews.map((review, idx) => {
+              const username = review.username || 'Anonim'
+              const rating = Math.max(0, Math.min(5, Number(review.rating) || 0))
+              const dateStr = review.createdAt
+                ? new Date(review.createdAt).toLocaleDateString('tr-TR')
+                : ''
+              return (
+                <div key={review.id ?? `tmp-${idx}`} className="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-indigo-100 text-indigo-700 font-bold rounded-full flex items-center justify-center uppercase">
+                      {username.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900 text-sm">{username}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-yellow-400 text-xs">
+                          {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+                        </div>
+                        <span className="text-xs text-gray-400">{dateStr}</span>
                       </div>
-                      <span className="text-xs text-gray-400">
-                        {new Date(review.createdAt).toLocaleDateString('tr-TR')}
-                      </span>
                     </div>
                   </div>
+                  <p className="text-gray-600 text-sm pl-13">{review.comment}</p>
                 </div>
-                <p className="text-gray-600 text-sm pl-13">{review.comment}</p>
-              </div>
-            ))
+              )
+            })
           ) : (
             <div className="text-center text-gray-500 py-8">Henüz yorum yapılmamış. İlk yorumu siz yapın!</div>
           )}
