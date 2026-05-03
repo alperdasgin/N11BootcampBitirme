@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../api/productApi'
+import { getAllStocks } from '../api/stockApi'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -9,6 +10,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   
   const [products, setProducts] = useState([])
+  const [stockMap, setStockMap] = useState({}) // productId → { availableQuantity, reservedQuantity }
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -25,17 +27,30 @@ export default function AdminDashboard() {
     fetchProducts()
   }, [user, navigate])
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getProducts(0, 100) // Admin panelinde 100 ürün çekiyoruz şimdilik
-      setProducts(res.data.content)
+      const [productsRes, stocksRes] = await Promise.all([
+        getProducts(0, 100),
+        getAllStocks()
+      ])
+      setProducts(productsRes.data.content)
+
+      // productId → stok verisi map'i oluştur
+      const map = {}
+      ;(stocksRes.data || []).forEach(s => {
+        map[s.productId] = {
+          availableQuantity: s.availableQuantity,
+          reservedQuantity: s.reservedQuantity
+        }
+      })
+      setStockMap(map)
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -111,12 +126,20 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
           <p className="text-gray-500 mt-1">Ürün Envanteri Yönetimi</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition-colors"
-        >
-          + Yeni Ürün Ekle
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={fetchProducts}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-semibold shadow-sm transition-colors"
+          >
+            ↻ Stokları Yenile
+          </button>
+          <button
+            onClick={openAddModal}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition-colors"
+          >
+            + Yeni Ürün Ekle
+          </button>
+        </div>
       </div>
 
       {/* Product Table */}
@@ -127,7 +150,7 @@ export default function AdminDashboard() {
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID / Ürün</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fiyat</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Stok</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Stok (Mevcut / Rezerve)</th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">İşlemler</th>
             </tr>
           </thead>
@@ -149,9 +172,28 @@ export default function AdminDashboard() {
                   ₺{Number(product.price).toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs font-bold rounded-md ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                    {product.stock} Adet
-                  </span>
+                  {stockMap[product.id] !== undefined ? (
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 text-xs font-bold rounded-md ${
+                        stockMap[product.id].availableQuantity > 10
+                          ? 'bg-green-100 text-green-700'
+                          : stockMap[product.id].availableQuantity > 0
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {stockMap[product.id].availableQuantity} Mevcut
+                      </span>
+                      {stockMap[product.id].reservedQuantity > 0 && (
+                        <span className="px-2 py-1 text-xs font-bold rounded-md bg-blue-100 text-blue-700">
+                          {stockMap[product.id].reservedQuantity} Rezerve
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="px-2 py-1 text-xs font-bold rounded-md bg-gray-100 text-gray-500">
+                      Stok kaydı yok
+                    </span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button onClick={() => openEditModal(product)} className="text-indigo-600 hover:text-indigo-900 mr-4">Düzenle</button>
