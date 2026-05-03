@@ -3,6 +3,7 @@ package com.ecommerce.api_gateway.filter;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             "/api/user/verify"
     );
 
+    // Sadece ADMIN'in yazma işlemi yapabileceği path prefix'leri
+    private static final java.util.List<String> ADMIN_WRITE_PATHS = java.util.List.of(
+            "/api/products"
+    );
+
     public AuthenticationFilter(JwtUtil jwtUtil) {
         super(Config.class);
         this.jwtUtil = jwtUtil;
@@ -27,6 +33,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             String path = exchange.getRequest().getURI().getPath();
+            HttpMethod method = exchange.getRequest().getMethod();
 
             // Open endpoint ise doğrulamayı atla
             boolean isOpen = OPEN_ENDPOINTS.stream().anyMatch(path::startsWith);
@@ -52,13 +59,27 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 return exchange.getResponse().setComplete();
             }
 
-            // Token geçerliyse username'i header'a ekle (downstream servisler kullanabilir)
             String username = jwtUtil.extractUsername(token);
-            exchange.getRequest().mutate()
+            String role = jwtUtil.extractRole(token);
+
+            // ADMIN-only write endpoint kontrolü (POST, PUT, DELETE)
+            boolean isWriteMethod = method == HttpMethod.POST
+                    || method == HttpMethod.PUT
+                    || method == HttpMethod.DELETE;
+            boolean isAdminPath = ADMIN_WRITE_PATHS.stream().anyMatch(path::startsWith);
+
+            if (isAdminPath && isWriteMethod && !"ADMIN".equals(role)) {
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse().setComplete();
+            }
+
+            // Username ve Role'ü downstream servislere ilet
+            var mutatedRequest = exchange.getRequest().mutate()
                     .header("X-User-Name", username)
+                    .header("X-User-Role", role != null ? role : "")
                     .build();
 
-            return chain.filter(exchange);
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
         };
     }
 
