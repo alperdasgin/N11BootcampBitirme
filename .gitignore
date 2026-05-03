@@ -1,27 +1,37 @@
-# Maven
+# ─── Maven build çıktıları ───────────────────────────────────
 **/target/
-**/mvnw
-**/mvnw.cmd
-**/.mvn/
 
-# IntelliJ IDEA
+# NOT: mvnw ve .mvn/ Docker build için gerekli, ignore etme!
+
+# ─── IDE dosyaları ───────────────────────────────────────────
 **/.idea/
 **/*.iml
 **/*.iws
 **/*.ipr
 
-# OS
+# ─── Node / Frontend ─────────────────────────────────────────
+**/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# ─── Ortam değişkenleri ──────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── OS dosyaları ────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Logs
+# ─── Log dosyaları ───────────────────────────────────────────
 *.log
 logs/
 
-# Spring Boot
+# ─── Spring Boot local profil ────────────────────────────────
 **/application-local.properties
 **/application-local.yml
 
-# Docker volumes (local data)
+# ─── Docker volume veri klasörleri ───────────────────────────
 postgres_data/
 rabbitmq_data/
