@@ -4,6 +4,7 @@ import com.ecommerce.product_service.dto.PageResponse;
 import com.ecommerce.product_service.dto.ProductRequest;
 import com.ecommerce.product_service.dto.ProductResponse;
 import com.ecommerce.product_service.entity.Product;
+import com.ecommerce.product_service.event.ProductSyncPublisher;
 import com.ecommerce.product_service.repository.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class ProductServiceImplTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductSyncPublisher productSyncPublisher;
 
     @InjectMocks
     private ProductServiceImpl productService;
