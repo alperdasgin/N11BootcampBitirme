@@ -24,6 +24,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             "/api/products"
     );
 
+    // ADMIN_WRITE_PATHS prefix'i altında olsa bile normal kullanıcının yazabileceği endpointler
+    // Örn: POST /api/products/{id}/reviews — kullanıcı yorum ekleyebilmeli
+    private static final java.util.regex.Pattern USER_WRITABLE_UNDER_ADMIN_PATH =
+            java.util.regex.Pattern.compile("^/api/products/\\d+/reviews/?$");
+
     public AuthenticationFilter(JwtUtil jwtUtil) {
         super(Config.class);
         this.jwtUtil = jwtUtil;
@@ -67,8 +72,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     || method == HttpMethod.PUT
                     || method == HttpMethod.DELETE;
             boolean isAdminPath = ADMIN_WRITE_PATHS.stream().anyMatch(path::startsWith);
+            boolean isUserWritableException = USER_WRITABLE_UNDER_ADMIN_PATH.matcher(path).matches();
 
-            if (isAdminPath && isWriteMethod && !"ADMIN".equals(role)) {
+            if (isAdminPath && isWriteMethod && !isUserWritableException && !"ADMIN".equals(role)) {
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();
             }

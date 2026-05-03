@@ -1,16 +1,11 @@
 {
-  "exportedAt" : "2026-05-03T12:34:13.242223047",
+  "exportedAt" : "2026-05-03T12:45:12.185062421",
   "count" : 6,
   "stocks" : [ {
     "productId" : 4,
     "productName" : "Spor Ayakkabı",
     "availableQuantity" : 2,
     "reservedQuantity" : 4
-  }, {
-    "productId" : 3,
-    "productName" : "Mekanik Klavye",
-    "availableQuantity" : 2,
-    "reservedQuantity" : 1
   }, {
     "productId" : 2,
     "productName" : "Wireless Mouse",
@@ -31,5 +26,10 @@
     "productName" : "Akıllı Saat",
     "availableQuantity" : 1,
     "reservedQuantity" : 3
+  }, {
+    "productId" : 3,
+    "productName" : "Mekanik Klavye",
+    "availableQuantity" : 1,
+    "reservedQuantity" : 2
   } ]
 }
