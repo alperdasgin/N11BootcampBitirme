@@ -1,35 +1,40 @@
 {
-  "exportedAt" : "2026-05-03T12:45:12.185062421",
-  "count" : 6,
+  "exportedAt" : "2026-05-03T00:00:00",
+  "count" : 7,
   "stocks" : [ {
-    "productId" : 4,
-    "productName" : "Spor Ayakkabı",
-    "availableQuantity" : 2,
-    "reservedQuantity" : 4
+    "productId" : 1,
+    "productName" : "Laptop Pro 15",
+    "availableQuantity" : 50,
+    "reservedQuantity" : 0
   }, {
     "productId" : 2,
     "productName" : "Wireless Mouse",
-    "availableQuantity" : 2,
-    "reservedQuantity" : 2
+    "availableQuantity" : 100,
+    "reservedQuantity" : 0
   }, {
-    "productId" : 1,
-    "productName" : "Laptop Pro 15",
-    "availableQuantity" : 2,
+    "productId" : 3,
+    "productName" : "Mekanik Klavye",
+    "availableQuantity" : 75,
+    "reservedQuantity" : 0
+  }, {
+    "productId" : 4,
+    "productName" : "Spor Ayakkabı",
+    "availableQuantity" : 200,
+    "reservedQuantity" : 0
+  }, {
+    "productId" : 5,
+    "productName" : "Akıllı Saat",
+    "availableQuantity" : 30,
     "reservedQuantity" : 0
   }, {
     "productId" : 6,
     "productName" : "Kitaplık Roman Seti",
-    "availableQuantity" : 2,
-    "reservedQuantity" : 1
+    "availableQuantity" : 60,
+    "reservedQuantity" : 0
   }, {
-    "productId" : 5,
-    "productName" : "Akıllı Saat",
-    "availableQuantity" : 1,
-    "reservedQuantity" : 3
-  }, {
-    "productId" : 3,
-    "productName" : "Mekanik Klavye",
-    "availableQuantity" : 1,
-    "reservedQuantity" : 2
+    "productId" : 7,
+    "productName" : "Güneş Gözlüğü",
+    "availableQuantity" : 80,
+    "reservedQuantity" : 0
   } ]
 }

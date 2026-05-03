@@ -75,6 +75,7 @@ public class StockInitRunner implements CommandLineRunner {
         repo.save(new ProductStock(4L, "Spor Ayakkabı", 200, 0));
         repo.save(new ProductStock(5L, "Akıllı Saat", 30, 0));
         repo.save(new ProductStock(6L, "Kitaplık Roman Seti", 60, 0));
+        repo.save(new ProductStock(7L, "Güneş Gözlüğü", 80, 0));
         log.info("Stok verileri yüklendi (varsayılan).");
     }
 
