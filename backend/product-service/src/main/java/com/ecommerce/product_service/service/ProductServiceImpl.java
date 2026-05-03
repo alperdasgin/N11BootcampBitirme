@@ -207,14 +207,20 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Ürün bulunamadı"));
 
-        Boolean hasPurchased = false;
+        log.info("Yorum denemesi: productId={}, username={}", productId, request.getUsername());
+        Boolean hasPurchased = null;
         try {
             hasPurchased = orderClient.checkPurchase(request.getUsername(), productId);
+            log.info("checkPurchase yanıtı: productId={}, username={}, hasPurchased={}",
+                    productId, request.getUsername(), hasPurchased);
         } catch (Exception e) {
-            log.error("Satın alma durumu kontrol edilemedi: {}", e.getMessage());
+            log.error("Satın alma durumu kontrol edilemedi (Feign): productId={}, username={}, error={}",
+                    productId, request.getUsername(), e.toString());
+            throw new RuntimeException(
+                    "Satın alma durumu doğrulanamadı, lütfen daha sonra tekrar deneyin.");
         }
 
-        if (Boolean.FALSE.equals(hasPurchased)) {
+        if (!Boolean.TRUE.equals(hasPurchased)) {
             throw new RuntimeException(
                     "Bu ürüne yorum yapabilmek için önce satın almış olmanız gerekmektedir.");
         }

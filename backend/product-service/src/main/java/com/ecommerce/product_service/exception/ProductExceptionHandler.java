@@ -17,9 +17,10 @@ public class ProductExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException e) {
-        log.error("Hata: {}", e.getMessage());
+        log.error("Hata: {}", e.getMessage(), e);
+        String msg = e.getMessage() != null ? e.getMessage() : "Beklenmeyen hata";
         return ResponseEntity.badRequest()
-                .body(Map.of("error", e.getMessage()));
+                .body(Map.of("error", msg, "message", msg));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

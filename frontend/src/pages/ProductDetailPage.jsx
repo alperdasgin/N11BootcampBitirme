@@ -67,7 +67,8 @@ export default function ProductDetailPage() {
       }))
       setReviewComment('')
     } catch (err) {
-      setReviewError(err.response?.data?.message || 'Yorum eklenirken hata oluştu. Sadece satın alanlar yorum yapabilir.')
+      const backendMsg = err.response?.data?.error || err.response?.data?.message
+      setReviewError(backendMsg || 'Yorum eklenemedi.')
     } finally {
       setSubmittingReview(false)
     }
