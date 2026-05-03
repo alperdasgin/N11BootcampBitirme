@@ -5,6 +5,7 @@ import com.ecommerce.product_service.dto.PageResponse;
 import com.ecommerce.product_service.dto.ProductRequest;
 import com.ecommerce.product_service.dto.ProductResponse;
 import com.ecommerce.product_service.entity.Product;
+import com.ecommerce.product_service.event.ProductSyncPublisher;
 import com.ecommerce.product_service.repository.ProductRepository;
 import com.ecommerce.product_service.repository.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductSearchRepository productSearchRepository;
     private final com.ecommerce.product_service.client.OrderClient orderClient;
+    private final ProductSyncPublisher productSyncPublisher;
 
     // ── CREATE ────────────────────────────────────────────────────────────────
 
@@ -55,6 +57,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product saved = productRepository.save(product);
         indexToElasticsearch(saved);
+        productSyncPublisher.publishCreated(saved);
         log.info("Ürün oluşturuldu ve ES'e indexlendi. id={}", saved.getId());
         return toResponse(saved);
     }
@@ -152,6 +155,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product updated = productRepository.save(product);
         indexToElasticsearch(updated);
+        productSyncPublisher.publishUpdated(updated);
         log.info("Ürün güncellendi ve ES sync edildi. id={}", id);
         return toResponse(updated);
     }
@@ -168,6 +172,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(product.getStock() + quantity);
         Product updated = productRepository.save(product);
         indexToElasticsearch(updated);
+        productSyncPublisher.publishUpdated(updated);
         return toResponse(updated);
     }
 
@@ -188,6 +193,7 @@ public class ProductServiceImpl implements ProductService {
             log.warn("Ürün ES'den silinemedi, id={}: {}", id, e.getMessage());
         }
 
+        productSyncPublisher.publishDeleted(id, product.getName());
         log.info("Ürün silindi (soft delete). id={}", id);
     }
 

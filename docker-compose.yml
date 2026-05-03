@@ -161,6 +161,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       elasticsearch:
         condition: service_healthy
       discovery-server:
@@ -170,7 +172,11 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
+      - SPRING_RABBITMQ_HOST=rabbitmq
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - EXPORT_DIR=/app/exports
+    volumes:
+      - ./backend/exports:/app/exports
     networks:
       - ecommerce-network
 
@@ -257,6 +263,9 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_RABBITMQ_HOST=rabbitmq
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - EXPORT_DIR=/app/exports
+    volumes:
+      - ./backend/exports:/app/exports
     networks:
       - ecommerce-network
 

@@ -19,6 +19,10 @@ public class StockRabbitConfig {
     @Value("${stock.rabbit.reserveRequestedQueue}") private String reserveRequestedQueue;
     @Value("${stock.rabbit.reserveRequestedRoutingKey}") private String reserveRequestedRoutingKey;
 
+    @Value("${product.sync.exchange}") private String productSyncExchange;
+    @Value("${product.sync.queue}") private String productSyncQueue;
+    @Value("${product.sync.routingKeyPattern}") private String productSyncRoutingKeyPattern;
+
     @Bean
     public TopicExchange stockExchange() {
         return new TopicExchange(exchangeName, true, false);
@@ -34,6 +38,24 @@ public class StockRabbitConfig {
         return BindingBuilder.bind(reserveRequestedQueue())
                 .to(stockExchange())
                 .with(reserveRequestedRoutingKey);
+    }
+
+    // ── Product → Stock sync events ──────────────────────────────
+    @Bean
+    public TopicExchange productSyncExchange() {
+        return new TopicExchange(productSyncExchange, true, false);
+    }
+
+    @Bean
+    public Queue productSyncQueue() {
+        return QueueBuilder.durable(productSyncQueue).build();
+    }
+
+    @Bean
+    public Binding productSyncBinding() {
+        return BindingBuilder.bind(productSyncQueue())
+                .to(productSyncExchange())
+                .with(productSyncRoutingKeyPattern);
     }
 
     @Bean
