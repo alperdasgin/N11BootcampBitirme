@@ -40,7 +40,9 @@ jobs:
 
       - name: Run tests — ${{ matrix.service }}
         working-directory: backend/${{ matrix.service }}
-        run: ./mvnw test -B
+        run: |
+          chmod +x mvnw
+          ./mvnw test -B
         env:
           JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
 
@@ -100,6 +102,7 @@ jobs:
       - name: Build & push image with Jib — ${{ matrix.service }}
         working-directory: backend/${{ matrix.service }}
         run: |
+          chmod +x mvnw
           ./mvnw compile jib:build -DskipTests -B \
             -Djib.to.image=${{ env.REGISTRY }}/${{ env.REPO_LC }}/${{ matrix.service }}:latest \
             -Djib.to.auth.username=${{ github.actor }} \
